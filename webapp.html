@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Princess Dash Adventure</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+        body { 
+            margin: 0; background: #fbc2eb; 
+            color: #fff; font-family: 'Press Start 2P', cursive; 
+            display: flex; flex-direction: column; align-items: center; justify-content: center; 
+            height: 100vh; overflow: hidden; 
+        }
+        canvas { 
+            background: linear-gradient(#a1887f, #fbc2eb); 
+            border: 5px solid #fff; border-radius: 20px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            cursor: pointer;
+        }
+        .ui { margin-bottom: 20px; text-shadow: 2px 2px 0px rgba(0,0,0,0.2); text-align: center; }
+        h1 { font-size: 22px; margin: 0 0 15px 0; letter-spacing: 2px; }
+        p { font-size: 10px; margin: 5px 0; line-height: 1.5; }
+        .back-link { 
+            margin-top: 20px; color: #ff69b4; background: white;
+            text-decoration: none; font-weight: bold; padding: 12px 25px; 
+            border-radius: 10px; transition: 0.3s; font-size: 10px;
+        }
+        .back-link:hover { transform: scale(1.1); background: #fff; box-shadow: 0 0 15px rgba(255,255,255,0.5); }
+    </style>
+</head>
+<body>
+
+    <div class="ui">
+        <h1>PRINCESS DASH</h1>
+        <p>GEMS: <span id="scoreVal">0</span></p>
+        <p>PRESS SPACE OR CLICK TO JUMP</p>
+    </div>
+
+    <canvas id="gameCanvas" width="800" height="400"></canvas>
+
+    <a href="fromScratch.html" class="back-link">BACK TO HOME</a>
+
+    <script>
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+        const scoreElement = document.getElementById("scoreVal");
+
+        let score = 0;
+        let gameRunning = true;
+        let gameSpeed = 5;
+
+        let princess = {
+            x: 100, y: 300, w: 35, h: 50,
+            dy: 0, jumpForce: 13, gravity: 0.7,
+            grounded: false
+        };
+
+        let obstacles = [];
+        let gems = [];
+        let frame = 0;
+
+        function spawnObjects() {
+            if (frame % 100 === 0) {
+                obstacles.push({ x: canvas.width, y: 340, w: 40, h: 40 });
+            }
+            if (frame % 150 === 0) {
+                gems.push({ x: canvas.width, y: 200 + Math.random() * 100, r: 12, taken: false });
+            }
+        }
+
+        function drawPrincess() {
+            ctx.fillStyle = "#ff1493";
+            ctx.beginPath();
+            ctx.moveTo(princess.x + princess.w / 2, princess.y);
+            ctx.lineTo(princess.x + princess.w + 10, princess.y + princess.h);
+            ctx.lineTo(princess.x - 10, princess.y + princess.h);
+            ctx.fill();
+            ctx.fillStyle = "#ffe0bd";
+            ctx.beginPath(); ctx.arc(princess.x + princess.w / 2, princess.y, 12, 0, Math.PI * 2); ctx.fill();
+            ctx.fillStyle = "gold";
+            ctx.fillRect(princess.x + princess.w / 2 - 8, princess.y - 18, 16, 8);
+        }
+
+        function update() {
+            if (!gameRunning) return;
+            frame++;
+            spawnObjects();
+            princess.dy += princess.gravity;
+            princess.y += princess.dy;
+            if (princess.y + princess.h > 380) {
+                princess.y = 380 - princess.h;
+                princess.dy = 0;
+                princess.grounded = true;
+            }
+            obstacles.forEach((obs, index) => {
+                obs.x -= gameSpeed;
+                if (princess.x < obs.x + obs.w && princess.x + princess.w > obs.x && 
+                    princess.y < obs.y + obs.h && princess.y + princess.h > obs.y) {
+                    gameOver();
+                }
+                if (obs.x + obs.w < 0) obstacles.splice(index, 1);
+            });
+            gems.forEach((gem, index) => {
+                gem.x -= gameSpeed;
+                if (!gem.taken && Math.hypot(princess.x - gem.x, princess.y - gem.y) < 40) {
+                    gem.taken = true;
+                    score++;
+                    scoreElement.innerText = score;
+                }
+                if (gem.x + 20 < 0) gems.splice(index, 1);
+            });
+            gameSpeed += 0.001;
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = "#fff";
+            ctx.fillRect(0, 380, canvas.width, 20);
+            ctx.fillStyle = "#9400d3";
+            obstacles.forEach(obs => {
+                ctx.beginPath();
+                ctx.moveTo(obs.x, obs.y + obs.h);
+                ctx.lineTo(obs.x + obs.w / 2, obs.y);
+                ctx.lineTo(obs.x + obs.w, obs.y + obs.h);
+                ctx.fill();
+            });
+            ctx.fillStyle = "#00ffff";
+            gems.forEach(gem => {
+                if (!gem.taken) {
+                    ctx.beginPath();
+                    ctx.arc(gem.x, gem.y, gem.r, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            });
+            drawPrincess();
+        }
+
+        function gameOver() {
+            gameRunning = false;
+            ctx.fillStyle = "rgba(0,0,0,0.7)";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = "white";
+            ctx.font = "20px 'Press Start 2P'";
+            ctx.fillText("GAME OVER", canvas.width / 2 - 110, canvas.height / 2);
+            ctx.font = "10px 'Press Start 2P'";
+            ctx.fillText("CLICK TO RESTART", canvas.width / 2 - 85, canvas.height / 2 + 50);
+        }
+
+        function restart() {
+            score = 0; scoreElement.innerText = score;
+            obstacles = []; gems = []; frame = 0; gameSpeed = 5;
+            princess.y = 300; gameRunning = true;
+            loop();
+        }
+
+        function loop() {
+            if (!gameRunning) return;
+            update();
+            draw();
+            requestAnimationFrame(loop);
+        }
+
+        const handleJump = () => {
+            if (gameRunning) {
+                if (princess.grounded) {
+                    princess.dy = -princess.jumpForce;
+                    princess.grounded = false;
+                }
+            } else {
+                restart();
+            }
+        };
+
+        window.addEventListener("keydown", (e) => { if(e.code === "Space" || e.code === "ArrowUp") handleJump(); });
+        canvas.addEventListener("click", handleJump);
+
+        loop();
+    </script>
+</body>
+</html>

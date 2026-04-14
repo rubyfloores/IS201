@@ -1,0 +1,70 @@
+/* 1. Body: Sets Font Family and Global Font Color */
+body {
+    background-color: #e3f2fd; 
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #333333; 
+    margin: 0;
+    padding: 20px;
+}
+
+/* 2. Div #1: Header Styling and Positioning */
+#header-block {
+    background-color: #002e5d; 
+    color: #ffffff; 
+    padding: 40px;
+    text-align: center;
+    border-radius: 0 0 15px 15px;
+}
+
+/* 3. Div #2: Main Content Styling and Positioning */
+#main-content {
+    background-color: #ffffff;
+    margin: 20px auto;
+    padding: 30px;
+    max-width: 800px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+/* 4. Div #3: Tableau Section Styling and Positioning */
+#tableau-block {
+    background-color: #f8f9fa;
+    margin: 20px auto;
+    padding: 30px;
+    max-width: 800px;
+    border-radius: 10px;
+    text-align: center;
+}
+
+/* 5. Image Styling (Moved from HTML to CSS) */
+.main-photo {
+    width: 100%;
+    max-width: 500px;
+    height: auto;
+    border-radius: 15px;
+    display: block;
+    margin: 20px auto;
+}
+
+/* Link Styling */
+a {
+    color: #17191a;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+.anchor-link {
+    display: inline-block;
+    margin-top: 15px;
+    color: #7f8c8d;
+}
+
+footer {
+    text-align: center;
+    padding: 20px;
+    font-size: 0.9em;
+}
